@@ -48,10 +48,8 @@ function Select-SMSSystemProgram {
     <#
     .Synopsis
        gets all programs from SCCM with the program and version
-    .DESCRIPTION
-       gets all programs from SCCM with the program and version
     .EXAMPLE
-       Select-SMSSystemProgram -ProgramName "acrobat" -Version "11.0.12"
+       Select-SMSSystemProgram -ProgramName "acrobat"
 
     #>
     [CmdletBinding()]
@@ -153,13 +151,9 @@ AND SMS_ClientAdvertisementStatus.LastAcceptanceMessageID NOT IN (10018,10019)
 function Select-SMSPendingReboot {
     <#
     .Synopsis
-       Short description
-    .DESCRIPTION
-       Long description
+       Retrieves SMS_R_System where a reboot is pending
     .EXAMPLE
-       Example of how to use this cmdlet
-    .EXAMPLE
-       Another example of how to use this cmdlet
+       Select-SMSPendingReboot
     #>
     [CmdletBinding()]
     Param()
@@ -243,7 +237,7 @@ function Request-SMSQuery {
     [cmdletbinding()]
     param([Parameter(Mandatory=$false,
                      ValueFromPipeline=$true)]
-          [string]$SCCMServer,
+          [string]$SMServer = $MyInvocation.MyCommand.Module.PrivateData['SMServer'],
           [Parameter(Mandatory=$false,
                      ValueFromPipeline=$true)]
           [string]$SiteCode,
@@ -279,7 +273,7 @@ function Request-SMSQuery {
         $DataSet.Tables[0]
         #>
 
-        $SMSQuery = Get-WmiObject -ComputerName $SCCMServer -Namespace "root\sms\site_$SiteCode" -Query $WQL
+        $SMSQuery = Get-WmiObject -ComputerName $SMServer -Namespace "root\sms\site_$SiteCode" -Query $WQL
 
         return $SMSQuery
     }
@@ -297,8 +291,6 @@ function Get-SMSScheduleMethods {
     <#
     .Synopsis
        Returns a WMI class that provides methods to decode service window schedules
-    .DESCRIPTION
-       Returns a WMI class that provides methods to decode service window schedules.  
     .EXAMPLE
        # gets the service window from the computer
        $CCMServiceWindow = get-wmiobject -namespace "root\CCM\Policy\Machine\ActualConfig" -Class CCM_ServiceWindow
@@ -318,14 +310,14 @@ function Get-SMSScheduleMethods {
     [CmdletBinding()]
     Param([Parameter(Mandatory=$false,
                      ValueFromPipeline=$false)]
-          [string]$SCCMServer,
+          [string]$SMServer,
           [Parameter(Mandatory=$false,
                      ValueFromPipeline=$false)]
           [string]$SiteCode)
 
     Process
     {
-        return gwmi -ComputerName $SCCMServer -Namespace "root\SMS\Site_$SiteCode" -Class SMS_ScheduleMethods -List
+        return gwmi -ComputerName $SMServer -Namespace "root\SMS\Site_$SiteCode" -Class SMS_ScheduleMethods -List
     }
 }
 
